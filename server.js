@@ -23,10 +23,11 @@ var url = require('url');
 var kurento = require('kurento-client');
 var fs    = require('fs');
 var https = require('https');
+var http = require('http');
 
 var argv = minimist(process.argv.slice(2), {
   default: {
-      as_uri: "https://localhost:6008/",
+      as_uri: "http://localhost:6008/",
       ws_uri: "ws://184.72.115.87:8888/kurento"
   }
 });
@@ -38,6 +39,7 @@ var options =
 };
 
 var app = express();
+app.set('port', process.env.PORT || 6008);
 
 /*
  * Definition of global variables.
@@ -207,10 +209,15 @@ CallMediaPipeline.prototype.release = function() {
 
 var asUrl = url.parse(argv.as_uri);
 var port = process.env.PORT || asUrl.port;
-var server = https.createServer(options, app).listen(port, function() {
+
+var server = http.createServer(app).listen(port, function() {
     console.log('Kurento Tutorial started');
     console.log('Open ' + url.format(asUrl) + ' with a WebRTC capable browser');
 });
+
+// var server = app.listen(app.get('port'), function(){
+//     console.log('Express server listening on port ' + app.get('port'));
+// });
 
 var wss = new ws.Server({
     server : server,
